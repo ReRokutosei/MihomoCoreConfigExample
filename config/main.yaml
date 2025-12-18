@@ -257,7 +257,7 @@ proxy-groups:
   # 第一层：AIGC
   - name: AIGC
     type: select
-    icon: "../icons/Cyrene(2)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/Cyrene(2)_256.png"
     proxies: [自动, 手动,
               🇸🇬 新加坡 自动选择, 🇯🇵 日本 自动选择,
               🇰🇷 韩国 自动选择, 🇩🇪 德国 自动选择,
@@ -278,25 +278,25 @@ proxy-groups:
   # REJECT-DROP：直接丢包不回应，对端会超时。
   - name: AdBlock
     type: select
-    icon: "../icons/Evernight(1)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/Evernight(1)_256.png"
     proxies: [REJECT, REJECT-DROP, DIRECT]
 
   # 第一层：HttpDNS - DoH/DoT 等 DNS 泄漏阻断
   - name: HttpDNSBlock
-    icon: "../icons/Evernight(2)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/Evernight(2)_256.png"
     type: select
     proxies: [REJECT, REJECT-DROP, DIRECT]
 
   # 第一层：STUN/WebRTC 等 UDP 泄漏
   - name: LeakBlock
     type: select
-    icon: "../icons/March7th(5)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(5)_256.png"
     proxies: [REJECT, REJECT-DROP, DIRECT]
 
   # 第一层：PROXY
   - name: PROXY
     type: select
-    icon: "../icons/March7th(1)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(1)_256.png"
     proxies: [自动, 手动]
     ip-version: ipv4-prefer
 
@@ -305,18 +305,18 @@ proxy-groups:
   - name: 手动
     filter: '^(?!.*(套餐|剩余)).*$'
     <<: *Select
-    icon: "../icons/Stelle_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/Stelle_256.png"
 
   - name: 自动
     type: select
     proxies: [自动选择, 自动回退, 负载均衡]
-    icon: "../icons/March7th(3)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(3)_256.png"
 
 
   # 第三层: 引用基础组资源
   - name: 自动选择
     type: select
-    icon: "../icons/March7th(7)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(7)_256.png"
     proxies:
       - 🇭🇰 香港 自动选择
       - 🇯🇵 日本 自动选择
@@ -343,7 +343,7 @@ proxy-groups:
 
   - name: 自动回退
     type: select
-    icon: "../icons/March7th(13)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(13)_256.png"
     proxies:
       - 🇭🇰 香港 自动回退
       - 🇯🇵 日本 自动回退
@@ -370,7 +370,7 @@ proxy-groups:
 
   - name: 负载均衡
     type: select
-    icon: "../icons/March7th(15)_256.png"
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(15)_256.png"
     proxies:
       - 🇭🇰 香港 负载均衡
       - 🇯🇵 日本 负载均衡
