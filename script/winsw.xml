@@ -1,0 +1,51 @@
+<service>
+  <!-- 服务基本信息 -->
+  <id>Mihomo</id>
+  <name>Mihomo Proxy Service</name>
+  <description>Mihomo Proxy Service</description>
+  
+  <!-- 可执行文件路径和启动参数 -->
+  <executable>YOUR_MIHOMO_PATH\mihomo-windows-amd64-v3.exe</executable>
+  <arguments>-d config -f config\main.yaml</arguments>
+  
+  <!-- 工作目录 -->
+  <workingdirectory>YOUR_MIHOMO_PATH</workingdirectory>
+  
+  <!-- 启动设置 -->
+  <!-- 设置服务进程的 CPU 优先级 -->
+  <!-- delayedAutoStart: 延迟启动，系统启动完关键服务后再启动此服务 -->
+  <!-- priority: 进程优先级，设置为低于正常优先级，避免影响系统性能 -->
+  <!-- idle：空闲优先级（最低） -->
+  <!-- belownormal：低于正常优先级 -->
+  <!-- normal：正常优先级（默认） -->
+  <!-- abovenormal：高于正常优先级 -->
+  <!-- high：高优先级 -->
+  <!-- realtime：实时优先级（最高，慎用） -->
+  <delayedAutoStart>true</delayedAutoStart>
+  <priority>belownormal</priority>
+
+  <!-- 日志管理 -->
+  <!-- mode: roll-by-size 按大小分割日志文件 -->
+  <!-- sizeThreshold: 每个日志文件最大10MB -->
+  <!-- keepFiles: 保留最近14个日志文件 -->
+  <log mode="roll-by-size">
+    <logpath>logs</logpath>
+    <sizeThreshold>10240</sizeThreshold>
+    <keepFiles>14</keepFiles>
+  </log>
+
+  <!-- 错误处理 -->
+  <!-- onfailure: 服务异常退出时的处理策略 -->
+  <!-- 第一次失败后10秒重启 -->
+  <!-- 第二次失败后30秒重启 -->
+  <!-- 第三次及之后失败不处理 -->
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <onfailure action="none"/>
+  
+  <!-- resetfailure: 服务持续运行1小时后重置失败计数 -->
+  <resetfailure>1 hour</resetfailure>
+  
+  <!-- stoptimeout: 停止服务时等待30秒让其优雅关闭 -->
+  <stoptimeout>30sec</stoptimeout>
+</service>
