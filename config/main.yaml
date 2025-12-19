@@ -805,7 +805,8 @@ sub-rules:
         (RULE-SET,microsoft_non_ip),
         (RULE-SET,microsoft_cdn_non_ip),
         (RULE-SET,lan_non_ip),
-        (RULE-SET,lan_ip)
+        (RULE-SET,lan_ip),
+        (RULE-SET,cn_icp)
       ),DIRECT
 
 
