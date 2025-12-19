@@ -1,11 +1,11 @@
-# sync-official-config.ps1
+# sync-official-docs.ps1
 param (
-    [string]$LogPath = "$PSScriptRoot/logs/sync-mihomo-config.log"
+    [string]$LogPath = "$PSScriptRoot/logs/sync-mihomo-docs.log"
 )
 
-$IconUpdated = "config/ui/icons/March7th(2)_256.png"
-$IconCurrent = "config/ui/icons/March7th(3)_256.png"
-$IconFailed  = "config/ui/icons/March7th(12)_256.png"
+$IconUpdated = "$PSScriptRoot/../config/ui/icons/March7th(2)_256.png"
+$IconCurrent = "$PSScriptRoot/../config/ui/icons/March7th(3)_256.png"
+$IconFailed  = "$PSScriptRoot/../config/ui/icons/March7th(12)_256.png"
 
 function Write-Log { 
     param([string]$Message)

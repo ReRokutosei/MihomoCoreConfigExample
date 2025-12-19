@@ -20,8 +20,8 @@ function Write-Log {
 Import-Module BurntToast -ErrorAction SilentlyContinue
 
 # 定义图标路径
-$IconUpdated = "config/ui/icons/March7th(2)_256.png"
-$IconCurrent = "config/ui/icons/March7th(3)_256.png"
+$IconUpdated = "$PSScriptRoot/../config/ui/icons/March7th(2)_256.png"
+$IconCurrent = "$PSScriptRoot/../config/ui/icons/March7th(3)_256.png"
 
 Write-Log "开始记录节点变化情况..."
 
