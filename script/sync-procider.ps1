@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+# sync-procider.ps1
 
 param (
     [string]$ProviderDir = "$PSScriptRoot/../config/proxy_provider",
@@ -20,8 +20,8 @@ function Write-Log {
 Import-Module BurntToast -ErrorAction SilentlyContinue
 
 # 定义图标路径
-$IconUpdated = "config\ui\icons\March7th(2)_256.png"
-$IconCurrent = "config\ui\icons\March7th(3)_256.png"
+$IconUpdated = "config/ui/icons/March7th(2)_256.png"
+$IconCurrent = "config/ui/icons/March7th(3)_256.png"
 
 Write-Log "开始记录节点变化情况..."
 
@@ -137,31 +137,105 @@ foreach ($provider in $providerOrder) {
     }
 }
 
-
-# 在检测变化后，构建一个简短摘要
-$summary = if ($hasChanges) {
-    $msgs = foreach ($provider in $providerOrder) {
-        $old = $oldProxies[$provider] ?? @()
-        $new = $newProxies[$provider] ?? @()
-        $added   = @($new | Where-Object { $_ -notin $old }).Count
-        $removed = @($old | Where-Object { $_ -notin $new }).Count
-        if ($added -gt 0 -or $removed -gt 0) {
-            $parts = @()
-            if ($added -gt 0) { $parts += "新增 $added 个节点" }
-            if ($removed -gt 0) { $parts += "删除 $removed 个节点" }
-            "${provider}: $($parts -join ' ')"
+# 正则表达式检查功能
+# 从main.yaml提取Filter正则表达式
+$filterRegexes = @{}
+$mainConfigPath = "$PSScriptRoot/../config/main.yaml"
+if (Test-Path $mainConfigPath) {
+    $mainConfigLines = Get-Content $mainConfigPath
+    # 匹配有效的Filter定义行（非注释行），如 FilterJP: &FilterJP '正则表达式'
+    foreach ($line in $mainConfigLines) {
+        # 忽略注释行和空行
+        if ($line -match "^\s*#" -or $line -match "^\s*$") {
+            continue
+        }
+        # 匹配Filter定义
+        if ($line -match "Filter([a-zA-Z]+):\s*&Filter[a-zA-Z]+\s*'(.+?)'") {
+            $filterName = $matches[1]
+            $filterRegex = $matches[2]
+            $filterRegexes[$filterName] = $filterRegex
         }
     }
-    ($msgs -join '; ') -replace '^; ', ''
-} else {
-    "无变化"
 }
 
-# 然后用于通知
+# 收集所有代理节点名称
+$allProxyNames = @()
+foreach ($provider in $newProxies.Keys) {
+    $allProxyNames += $newProxies[$provider]
+}
+
+# 检查哪些节点能被Filter正则表达式捕获
+$capturedNodes = @{}
+foreach ($proxyName in $allProxyNames) {
+    foreach ($filter in $filterRegexes.Keys) {
+        $regex = $filterRegexes[$filter]
+        if ($proxyName -match $regex) {
+            if (-not $capturedNodes.ContainsKey($proxyName)) {
+                $capturedNodes[$proxyName] = @()
+            }
+            $capturedNodes[$proxyName] += $filter
+        }
+    }
+}
+
+# 查找未被捕获的节点
+$uncapturedNodes = $allProxyNames | Where-Object { -not $capturedNodes.ContainsKey($_) }
+if ($uncapturedNodes.Count -gt 0) {
+    Write-Log "⚠️  发现 $($uncapturedNodes.Count) 个未被任何Filter正则表达式捕获的节点"
+    # 记录前5个未捕获的节点名称作为示例
+    $sampleUncaptured = $uncapturedNodes | Select-Object -First 5
+    Write-Log "未捕获节点示例: $($sampleUncaptured -join ', ')"
+} else {
+    Write-Log "✅ 所有节点都被至少一个Filter正则表达式捕获"
+}
+
+# 构建摘要消息的函数
+function Build-SummaryMessage {
+    param(
+        [bool]$HasChanges,
+        [hashtable]$OldProxies,
+        [hashtable]$NewProxies,
+        [array]$ProviderOrder,
+        [array]$UncapturedNodes
+    )
+    
+    $messages = @()
+    
+    # 处理代理变更信息
+    if ($HasChanges) {
+        foreach ($provider in $ProviderOrder) {
+            $old = $OldProxies[$provider] ?? @()
+            $new = $NewProxies[$provider] ?? @()
+            $added = @($new | Where-Object { $_ -notin $old }).Count
+            $removed = @($old | Where-Object { $_ -notin $new }).Count
+            
+            if ($added -gt 0 -or $removed -gt 0) {
+                $parts = @()
+                if ($added -gt 0) { $parts += "新增 $added 个节点" }
+                if ($removed -gt 0) { $parts += "删除 $removed 个节点" }
+                $messages += "${provider}: $($parts -join ' ')"
+            }
+        }
+    } else {
+        $messages += "节点无变化"
+    }
+    
+    # 添加未捕获节点信息
+    if ($UncapturedNodes.Count -gt 0) {
+        $messages += "正则未捕获 $($UncapturedNodes.Count) 个节点"
+    }
+    
+    return ($messages -join '; ')
+}
+
+# 构建通知摘要
+$summary = Build-SummaryMessage -HasChanges $hasChanges -OldProxies $oldProxies -NewProxies $newProxies -ProviderOrder $providerOrder -UncapturedNodes $uncapturedNodes
+
+# 发送通知
 if ($hasChanges) {
     Write-Log "✅ 记录已更新。"
     New-BurntToastNotification -Text "Proxies Updated", $summary -AppLogo $IconUpdated -Silent
 } else {
     Write-Log "节点未变化。"
-    New-BurntToastNotification -Text "Proxies Current", "节点无变动情况。" -AppLogo $IconCurrent -Silent
+    New-BurntToastNotification -Text "Proxies Current", $summary -AppLogo $IconCurrent -Silent
 }

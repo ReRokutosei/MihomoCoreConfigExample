@@ -1,11 +1,11 @@
 # sync-official-config.ps1
 param (
-    [string]$LogPath = "$PSScriptRoot\logs\sync-mihomo-config.log"
+    [string]$LogPath = "$PSScriptRoot/logs/sync-mihomo-config.log"
 )
 
-$IconUpdated = "config\ui\icons\March7th(2)_256.png"
-$IconCurrent = "config\ui\icons\March7th(3)_256.png"
-$IconFailed  = "config\ui\icons\March7th(12)_256.png"
+$IconUpdated = "config/ui/icons/March7th(2)_256.png"
+$IconCurrent = "config/ui/icons/March7th(3)_256.png"
+$IconFailed  = "config/ui/icons/March7th(12)_256.png"
 
 function Write-Log { 
     param([string]$Message)
@@ -22,8 +22,8 @@ Import-Module BurntToast -ErrorAction SilentlyContinue
 
 Write-Log "开始同步官方配置文件..."
 
-$RepoRoot = Resolve-Path "$PSScriptRoot\.."
-$TargetFile = "$RepoRoot\config\otherfiles\offical_example_config.yaml"
+$RepoRoot = Resolve-Path "$PSScriptRoot/.."
+$TargetFile = "$RepoRoot/config/otherfiles/offical_example_config.yaml"
 $TempFile = "$TargetFile.tmp"
 
 try {
