@@ -65,6 +65,20 @@
 
 2. 根据需要修改其他配置项
 
+<details>
+<summary>关于GEO</summary>
+
+~~实现上肯定是ruleset快点~~
+
+~~那geo用数据库意义是？~~
+
+~~没啥，单纯是v2系先弄出来的东西，早晚会砍掉的~~
+
+~~(Σ(っ °Д °;)っ)~~
+
+~~geo那块早就处于没人维护的 屎山代码阶段了~~
+
+</details>
 
 ### step02 编辑 `script/winsw.xml` 文件
 
@@ -100,8 +114,6 @@ http://127.0.0.1:9090/ui/zashboard/
 ```
 ├── config/                               # 配置文件目录
 │   ├── main.yaml                         # 主配置文件
-│   ├── ASN.mmdb                          # ASN 数据库
-│   ├── GeoSite.dat                       # GeoSite 数据库
 │   ├── otherfiles/                       # 参考配置文件
 │   ├── proxy_provider/                   # 代理提供商配置
 │   ├── ui/                               # Web UI (Zashboard)
@@ -340,7 +352,7 @@ http://127.0.0.1:9090/ui/zashboard/
 脚本作用：自动同步 [mihomo 官方示例配置](https://raw.githubusercontent.com/MetaCubeX/mihomo/Alpha/docs/config.yaml) 到本地 `config/otherfiles/offical_example_config.yaml`，对比文档变动情况，记录日志并发送通知，最后自动提交 Git 变更(仅当文件内容变化时才提交)。
 
 - ⚙️ 前置条件
-  - 已安装**PowerShell 7+**而不是古老的pwsh5
+  - 已安装PowerShell 7+，而不是用古老的pwsh5
   - 已安装pwsh模块：`Install-Module BurntToast -Scope CurrentUser`
   - Git 已配置 `user.name` / `user.email`
 
@@ -405,7 +417,7 @@ http://127.0.0.1:9090/ui/zashboard/
 最后推通过BurntToast推送摘要信息
 
 - ⚙️ 前置条件
-  - 已安装**PowerShell 7+**而不是古老的pwsh5
+  - 已安装PowerShell 7+，而不是用古老的pwsh5
   - 已安装pwsh模块：`Install-Module BurntToast -Scope CurrentUser`
 
 - ▶️ 运行
