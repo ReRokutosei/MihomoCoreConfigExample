@@ -11,23 +11,10 @@ allow-lan: false
 bind-address: "*"
 ipv6: false
 mode: rule
-log-level: info
-# 日志输出为文件暂无方法
-# log-output: ./logs/mihomo.log
+log-level: warning
 tcp-concurrent: true
 unified-delay: true
 global-client-fingerprint: chrome
-
-# GEOIP 数据模式
-# 更改 geoip 使用文件，mmdb 或者 dat
-# 可选 true/false,true为 dat，此项有默认值 false
-geodata-mode: true
-# GEO 文件加载模式，memconservative：专为内存受限 (小内存) 设备优化的加载器 (默认值)
-geodata-loader: standard 
-geo-auto-update: true
-geo-update-interval: 6 # 更新间隔，单位为小时
-geox-url:
-  geosite: "https://github.com/v2fly/domain-list-community/releases/latest/download/dlc.dat"
 
 # 外部控制器配置 (zashboard)
 external-controller: 127.0.0.1:9090
@@ -91,17 +78,11 @@ dns:
   # fake-ip-range6: fdfe:dcba:9876::1/64
   fake-ip-filter-mode: blacklist
   fake-ip-filter:
+    - '*.lan'
+    - '+.local'
+    - 'localhost'
     - RULE-SET:private_domain
     - RULE-SET:fakeip_filter_domain
-    - RULE-SET:cn_domain
-    - RULE-SET:lan_non_ip
-    - RULE-SET:cn_icp
-    - geosite:private                      # 私有/保留域名（RFC1918 等）
-    - geosite:connectivity-check           # 各平台连通性检测域名集合
-    - geosite:cn                           # 基础中国域名（v2fly 标准）
-    - geosite:tld-cn                       # .cn / .中国 等中文顶级域
-    - geosite:geolocation-cn               # 中国站点
-    - geosite:geolocation-!cn@cn           # 国外列表中标记为 @cn 的域名
 
 
   # ⚠️ default & proxy-server 配置请勿随意改为 DoH/DoQ
@@ -209,33 +190,33 @@ sniffer:
 
 
 # ===============================
-# 节点筛选锚点
+# Filter 节点筛选
 # ===============================
-FilterJP: &FilterJP '^(?=.*(?:🇯🇵|日本|JP))(?!.*(?:剩余|套餐)).*$'
-FilterKR: &FilterKR '^(?=.*(?:🇰🇷|韩国|韓|KR))(?!.*(?:剩余|套餐)).*$'
-FilterSG: &FilterSG '^(?=.*(?:🇸🇬|新加坡|狮|SG))(?!.*(?:剩余|套餐)).*$'
-FilterUS: &FilterUS '^(?=.*(?:🇺🇸|美国|US))(?!.*(?:剩余|套餐)).*$'
-FilterHK: &FilterHK '^(?=.*(?:🇭🇰|香港|HK))(?!.*(?:剩余|套餐)).*$'
-FilterTW: &FilterTW '^(?=.*(?:🇹🇼|台湾|TW))(?!.*(?:剩余|套餐)).*$'
-FilterIN: &FilterIN '^(?=.*(?:🇮🇳|印度|IN))(?!.*(?:剩余|套餐)).*$'
-FilterUK: &FilterUK '^(?=.*(?:🇬🇧|英国|UK))(?!.*(?:剩余|套餐)).*$'
-FilterAU: &FilterAU '^(?=.*(?:🇦🇺|澳大利亚|澳洲|AU))(?!.*(?:剩余|套餐)).*$'
-FilterAE: &FilterAE '^(?=.*(?:🇦🇪|迪拜|阿联酋|AE))(?!.*(?:剩余|套餐)).*$'
-FilterCH: &FilterCH '^(?=.*(?:🇨🇭|瑞士|苏黎世|CH))(?!.*(?:剩余|套餐)).*$'
-FilterDE: &FilterDE '^(?=.*(?:🇩🇪|德国|DE))(?!.*(?:剩余|套餐)).*$'
-FilterTR: &FilterTR '^(?=.*(?:🇹🇷|土耳其|TR))(?!.*(?:剩余|套餐)).*$'
-FilterMY: &FilterMY '^(?=.*(?:🇲🇾|马来西亚|MY))(?!.*(?:剩余|套餐)).*$'
-FilterVN: &FilterVN '^(?=.*(?:🇻🇳|越南|VN))(?!.*(?:剩余|套餐)).*$'
-FilterTH: &FilterTH '^(?=.*(?:🇹🇭|泰国|TH))(?!.*(?:剩余|套餐)).*$'
-FilterKH: &FilterKH '^(?=.*(?:🇰🇭|柬埔寨|KH))(?!.*(?:剩余|套餐)).*$'
-FilterPH: &FilterPH '^(?=.*(?:🇵🇭|菲律宾|PH))(?!.*(?:剩余|套餐)).*$'
-FilterID: &FilterID '^(?=.*(?:🇮🇩|印度尼西亚|ID))(?!.*(?:剩余|套餐)).*$'
-FilterFR: &FilterFR '^(?=.*(?:🇫🇷|法国|FR))(?!.*(?:剩余|套餐)).*$'
-FilterBR: &FilterBR '^(?=.*(?:🇧🇷|巴西|BR))(?!.*(?:剩余|套餐)).*$'
-FilterNL: &FilterNL '^(?=.*(?:🇳🇱|荷兰|NL))(?!.*(?:剩余|套餐)).*$'
+FilterJP: &FilterJP '^(?=.*(?:🇯🇵|日本|JP))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterKR: &FilterKR '^(?=.*(?:🇰🇷|韩国|韓|KR))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterSG: &FilterSG '^(?=.*(?:🇸🇬|新加坡|狮|SG))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterUS: &FilterUS '^(?=.*(?:🇺🇸|美国|US))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterHK: &FilterHK '^(?=.*(?:🇭🇰|香港|HK))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterTW: &FilterTW '^(?=.*(?:🇹🇼|台湾|TW))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterIN: &FilterIN '^(?=.*(?:🇮🇳|印度|IN))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterUK: &FilterUK '^(?=.*(?:🇬🇧|英国|UK))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterAU: &FilterAU '^(?=.*(?:🇦🇺|澳大利亚|澳洲|AU))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterAE: &FilterAE '^(?=.*(?:🇦🇪|迪拜|阿联酋|AE))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterCH: &FilterCH '^(?=.*(?:🇨🇭|瑞士|苏黎世|CH))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterDE: &FilterDE '^(?=.*(?:🇩🇪|德国|DE))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterTR: &FilterTR '^(?=.*(?:🇹🇷|土耳其|TR))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterMY: &FilterMY '^(?=.*(?:🇲🇾|马来西亚|MY))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterVN: &FilterVN '^(?=.*(?:🇻🇳|越南|VN))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterTH: &FilterTH '^(?=.*(?:🇹🇭|泰国|TH))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterKH: &FilterKH '^(?=.*(?:🇰🇭|柬埔寨|KH))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterPH: &FilterPH '^(?=.*(?:🇵🇭|菲律宾|PH))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterID: &FilterID '^(?=.*(?:🇮🇩|印度尼西亚|ID))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterFR: &FilterFR '^(?=.*(?:🇫🇷|法国|FR))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterBR: &FilterBR '^(?=.*(?:🇧🇷|巴西|BR))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
+FilterNL: &FilterNL '^(?=.*(?:🇳🇱|荷兰|NL))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍|0\.1倍|0\.01倍)).*$'
 
 FilterMultiplier: &FilterMultiplier '(?=.*(?:0\.1倍|0\.01倍))(?!.*(?:剩余|套餐)).*$'
-FilterStream: &FilterStream '(?=.*(?:流媒体))(?!.*(?:剩余|套餐)).*$'
+FilterStream: &FilterStream '(?=.*(?:流媒体))(?!.*(?:剩余|套餐|0\.1倍|0\.01倍)).*$'
 
 
 # ===============================
@@ -262,6 +243,12 @@ proxy-groups:
               🇸🇬 新加坡 自动选择, 🇯🇵 日本 自动选择,
               🇰🇷 韩国 自动选择, 🇩🇪 德国 自动选择,
               🇬🇧 英国 自动选择, 🇺🇸 美国 自动选择]
+
+  # 第一层：Telegram
+  - name: TELEGRAM
+    type: select
+    icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(11)_256.png"
+    proxies: [自动, 手动, DOWNLOAD]
 
   # 第一层：下载专用
   - name: DOWNLOAD
@@ -467,7 +454,7 @@ proxy-groups:
   - {name: 🇧🇷 巴西 负载均衡, <<: *LoadBalance, filter: *FilterBR}
 
 # ===============================
-# 规则配置
+# 规则锚点
 # ===============================
 
 RuleSet_classical: &RuleSet_classical {type: http, behavior: classical, interval: 43200, format: text, proxy: PROXY}
@@ -480,39 +467,12 @@ RuleSet_ipcidr_mrs: &RuleSet_ipcidr_mrs {type: http, behavior: ipcidr, interval:
 
 # 订阅规则
 rule-providers:
-  # === 广告拦截（Sukka）===
-  reject_non_ip_no_drop:
-    <<: *RuleSet_classical
-    url: 'https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/reject-no-drop.txt'
-    path: './rule_set/sukkaw_ruleset/reject_non_ip_no_drop.txt'
 
-  reject_non_ip_drop:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/reject-drop.txt
-    path: ./rule_set/sukkaw_ruleset/reject_non_ip_drop.txt
-
-  reject_non_ip:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/reject.txt
-    path: ./rule_set/sukkaw_ruleset/reject_non_ip.txt
-
-  reject_domainset:
-    <<: *RuleSet_domain
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/domainset/reject.txt
-    path: ./rule_set/sukkaw_ruleset/reject_domainset.txt
-
-  reject_ip:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/ip/reject.txt
-    path: ./rule_set/sukkaw_ruleset/reject_ip.txt
-
-  # 广告拦截（增强）
   ads_domain:
     <<: *RuleSet_domain_mrs
-    url: https://jsd.onmicrosoft.cn/gh/TG-Twilight/AWAvenue-Ads-Rule@main/Filters/AWAvenue-Ads-Rule-Clash.mrs
-    path: ./rule_set/tg_twilight/ads_domain.mrs
+    url: https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs
+    path: ./rule_set/sukkaw_ruleset/ads_domain.mrs
 
-  # === 流媒体、AI、Telegram 等（Sukka）===
   cdn_domainset:
     <<: *RuleSet_domain
     url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/domainset/cdn.txt
@@ -548,32 +508,6 @@ rule-providers:
     url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/ip/telegram.txt
     path: ./rule_set/sukkaw_ruleset/telegram_ip.txt
 
-  # === Apple / Microsoft / CDN / Download（Sukka）===
-  apple_cdn:
-    <<: *RuleSet_domain
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/domainset/apple_cdn.txt
-    path: ./rule_set/sukkaw_ruleset/apple_cdn.txt
-
-  apple_services:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/apple_services.txt
-    path: ./rule_set/sukkaw_ruleset/apple_services.txt
-
-  apple_cn_non_ip:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/apple_cn.txt
-    path: ./rule_set/sukkaw_ruleset/apple_cn_non_ip.txt
-
-  microsoft_cdn_non_ip:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/microsoft_cdn.txt
-    path: ./rule_set/sukkaw_ruleset/microsoft_cdn_non_ip.txt
-
-  microsoft_non_ip:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/microsoft.txt
-    path: ./rule_set/sukkaw_ruleset/microsoft_non_ip.txt
-
   download_domainset:
     <<: *RuleSet_domain
     url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/domainset/download.txt
@@ -583,113 +517,65 @@ rule-providers:
     <<: *RuleSet_classical
     url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/download.txt
     path: ./rule_set/sukkaw_ruleset/download_non_ip.txt
-
-  # 内网域名和局域网 IP
-  lan_non_ip:
-    <<: *RuleSet_domain
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/lan.txt
-    path: ./rule_set/sukkaw_ruleset/lan_non_ip.txt
-
-  lan_ip:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/ip/lan.txt
-    path: ./rule_set/sukkaw_ruleset/lan_ip.txt
   
   domestic_non_ip:
     <<: *RuleSet_classical
     url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/domestic.txt
     path: ./rule_set/sukkaw_ruleset/domestic_non_ip.txt
 
-  direct_non_ip:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/direct.txt
-    path: ./rule_set/sukkaw_ruleset/direct_non_ip.txt
-
-  global_non_ip:
-    <<: *RuleSet_classical
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/global.txt
-    path: ./rule_set/sukkaw_ruleset/global_non_ip.txt
-
   domestic_ip:
     <<: *RuleSet_classical
     url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/ip/domestic.txt
     path: ./rule_set/sukkaw_ruleset/domestic_ip.txt
 
-  china_ip:
-    <<: *RuleSet_ipcidr
-    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/ip/china_ip.txt
-    path: ./rule_set/sukkaw_ruleset/china_ip.txt
+  direct_non_ip:
+    <<: *RuleSet_classical
+    url: https://raw.githubusercontent.com/SukkaLab/ruleset.skk.moe/refs/heads/master/Clash/non_ip/direct.txt
+    path: ./rule_set/sukkaw_ruleset/direct_non_ip.txt
   
-  # ICP 备案域名列表 form https://www.nodeseek.com/post-464238-1
+  # ICP 备案域名列表 40000+ 条 
+  # form https://www.nodeseek.com/post-464238-1
+  # 从 天眼查 爬取的国内主流企业在工信部存在【非经营性ICP备案号】或【许可证号】的域名
   cn_icp:
     <<: *RuleSet_domain_mrs
     url: https://static-file-global.353355.xyz/rules/cn-additional-list.mrs
     path: ./rule_set/fastoo/cn-additional-list.mrs
 
-  # Fake-ip-filter专用
   fakeip_filter_domain:
     <<: *RuleSet_domain_mrs
-    url: https://jsd.onmicrosoft.cn/gh/DustinWin/ruleset_geodata@mihomo-ruleset/fakeip-filter.mrs
+    url: https://raw.githubusercontent.com/DustinWin/ruleset_geodata/mihomo-ruleset/fakeip-filter.mrs
     path: ./rule_set/fakeip/Fakeip_Filter_Domain.mrs
 
-  cn_domain:
+  direct_domain:
     <<: *RuleSet_domain_mrs
-    url: https://jsd.onmicrosoft.cn/gh/Kwisma/clash-rules@release/direct.mrs
-    path: ./rule_set/fakeip/CN_Domain.mrs
+    url: https://raw.githubusercontent.com/Kwisma/clash-rules/release/direct.mrs
+    path: ./rule_set/Kwisma/direct.mrs
 
   private_domain:
     <<: *RuleSet_domain_mrs
-    url: https://jsd.onmicrosoft.cn/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/private.mrs
+    url: https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs
     path: ./rule_set/fakeip/Private_Domain.mrs
 
-  # 泄露拦截
   blockhttpdns_domain:
     <<: *RuleSet_domain_mrs
-    url: https://jsd.onmicrosoft.cn/gh/peiyingyao/Rule-for-OCD@master/rule/Clash/BlockHttpDNS/BlockHttpDNS_OCD_Domain.mrs
-    path: ./rule_set/other_reject/Category_httpdns_Domain.mrs
+    url: https://raw.githubusercontent.com/peiyingyao/Rule-for-OCD/master/rule/Clash/BlockHttpDNS/BlockHttpDNS_OCD_Domain.mrs
+    path: ./rule_set/peiyingyao/Category_httpdns_Domain.mrs
 
   blockhttpdns_ip:
     <<: *RuleSet_ipcidr_mrs
-    url: https://jsd.onmicrosoft.cn/gh/peiyingyao/Rule-for-OCD@master/rule/Clash/BlockHttpDNS/BlockHttpDNS_OCD_IP.mrs
-    path: ./rule_set/other_reject/Category_httpdns_IP.mrs
+    url: https://raw.githubusercontent.com/peiyingyao/Rule-for-OCD/master/rule/Clash/BlockHttpDNS/BlockHttpDNS_OCD_IP.mrs
+    path: ./rule_set/peiyingyao/Category_httpdns_IP.mrs
 
   stun_domain:
     <<: *RuleSet_domain_mrs
-    url: https://jsd.onmicrosoft.cn/gh/Kwisma/rules@main/rules/mihomo/STUN/STUN_Domain.mrs
-    path: ./rule_set/other_reject/STUN_Domain.mrs
+    url: https://raw.githubusercontent.com/peiyingyao/Rule-for-OCD/master/rule/Clash/STUN/STUN_OCD_Domain.mrs
+    path: ./rule_set/peiyingyao/STUN_Domain.mrs
 
 # 分流规则
 rules:
 
   ###############################################################
-  # 1. 进程直连
-  ###############################################################
-
-  # 进程名精确匹配
-  - PROCESS-NAME,StarRail.exe,DIRECT
-  - PROCESS-NAME,YuanShen.exe.exe,DIRECT
-  - PROCESS-NAME,ZenlessZoneZero.exe,DIRECT
-  - PROCESS-NAME,Starward.RPC.exe,DIRECT
-
-  # 路径关键词（正则）
-  - PROCESS-PATH-REGEX,(?i).*[Tt]encent.*[Ww]echat.*,DIRECT
-  - PROCESS-PATH-REGEX,(?i).*Adobe.*,DIRECT
-
-  # 进程名关键词（正则）
-  - PROCESS-NAME-REGEX,(?i).*wechat.*,DIRECT
-  - PROCESS-NAME-REGEX,Adobe.*\.exe,DIRECT
-
-
-  ###############################################################
-  # 2. 进程代理(换成你自己的实际路径)
-  ###############################################################
-
-  # - PROCESS-PATH,C:\Users\YourName\AppData\Local\Programs\obsidian\Obsidian.exe,PROXY
-  # - PROCESS-PATH,D:\YourPath\qBittorrent\qbittorrent.exe,DOWNLOAD
-
-
-  ###############################################################
-  # 3. 子规则调用
+  # 子规则调用
   ###############################################################
 
   - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),DIRECT-RULES
@@ -697,26 +583,10 @@ rules:
   - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),ADBLOCK-RULES
   - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),HTTPDNS-RULES
   - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),LEAK-RULES
-  - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),FIXED-REJECT
 
 
   ###############################################################
-  # 4. ⭐ 核心：原版 GeoSite 分流---
-  # https://www.aloxaf.com/2025/04/how_to_use_geosite/
-  ###############################################################
-
-  - GEOSITE,category-ads-all,AdBlock            # 广告及追踪域名
-  - GEOSITE,category-pt,DIRECT                  # 私有 Tracker
-  - GEOSITE,category-public-tracker,DIRECT      # 公开 BT Tracker
-  - GEOSITE,geolocation-!cn@cn,DIRECT           # 从“国外列表”中提取标记为 @cn 的域名 → 直连
-  - GEOSITE,geolocation-!cn,PROXY               # 剩余“国外列表” → 代理
-  - GEOSITE,geolocation-cn@!cn,PROXY            # 从“国内列表”中提取标记为 @!cn 的域名 → 代理
-  - GEOSITE,geolocation-cn,DIRECT               # 剩余“国内列表” → 直连
-  - GEOSITE,tld-cn,DIRECT                       # 所有顶级域名为 .cn 的网站
-
-
-  ###############################################################
-  # 5. FINAL
+  # FINAL
   ###############################################################
 
   - MATCH,PROXY
@@ -724,7 +594,7 @@ rules:
 
 
 ################################################################
-# 子规则
+# SUB RULES
 ################################################################
 
 sub-rules:
@@ -799,13 +669,10 @@ sub-rules:
 
     # 直连规则集
     - OR,(
-        (RULE-SET,apple_cn_non_ip),
-        (RULE-SET,apple_cdn),
-        (RULE-SET,apple_services),
-        (RULE-SET,microsoft_non_ip),
-        (RULE-SET,microsoft_cdn_non_ip),
-        (RULE-SET,lan_non_ip),
-        (RULE-SET,lan_ip),
+        (RULE-SET,direct_domain),
+        (RULE-SET,direct_non_ip),
+        (RULE-SET,domestic_ip,no-resolve),
+        (RULE-SET,domestic_non_ip),
         (RULE-SET,cn_icp)
       ),DIRECT
 
@@ -836,18 +703,22 @@ sub-rules:
 
     # 代理规则集
     - RULE-SET,ai_non_ip,AIGC
+
     - OR,(
+        (RULE-SET,download_domainset),
+        (RULE-SET,download_non_ip),
+        (RULE-SET,cdn_non_ip),
         (RULE-SET,cdn_domainset)
-        ),PROXY
-    - OR,(
-        (RULE-SET,telegram_non_ip),
-        (RULE-SET,telegram_ip),
-        (RULE-SET,download_domainset)
       ),DOWNLOAD
 
     - OR,(
-        (RULE-SET,stream_non_ip),
-        (RULE-SET,stream_ip)
+      (RULE-SET,telegram_ip,no-resolve),
+      (RULE-SET,telegram_non_ip)
+      ),TELEGRAM
+
+    - OR,(
+        (RULE-SET,stream_ip,no-resolve),
+        (RULE-SET,stream_non_ip)
       ),STREAM
 
   ###############################################################
@@ -856,9 +727,7 @@ sub-rules:
   # 广告拦截
   ADBLOCK-RULES:
     - OR,(
-        (RULE-SET,ads_domain),
-        (RULE-SET,reject_domainset),
-        (RULE-SET,reject_non_ip_no_drop)
+        (RULE-SET,ads_domain)
       ),AdBlock
 
   ###############################################################
@@ -866,8 +735,9 @@ sub-rules:
   ###############################################################
   HTTPDNS-RULES:
     - OR,(
-        (RULE-SET,blockhttpdns_domain),
-        (RULE-SET,blockhttpdns_ip,no-resolve)
+        
+        (RULE-SET,blockhttpdns_ip,no-resolve),
+        (RULE-SET,blockhttpdns_domain)
       ),HttpDNSBlock
 
   ###############################################################
@@ -882,9 +752,3 @@ sub-rules:
         (AND,((NETWORK,UDP),(DST-PORT,19302))),
         (DST-PORT,3478)
       ),LeakBlock
-
-  ###############################################################
-  # 剩余固定拒绝
-  ###############################################################
-  FIXED-REJECT:
-    - RULE-SET,reject_non_ip_drop,REJECT-DROP
