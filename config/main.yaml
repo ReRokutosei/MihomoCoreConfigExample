@@ -471,7 +471,7 @@ rule-providers:
   ads_domain:
     <<: *RuleSet_domain_mrs
     url: https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Clash.mrs
-    path: ./rule_set/sukkaw_ruleset/ads_domain.mrs
+    path: ./rule_set/AWAvenue/ads_domain.mrs
 
   cdn_domainset:
     <<: *RuleSet_domain
