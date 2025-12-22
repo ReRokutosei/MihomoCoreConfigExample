@@ -66,13 +66,13 @@ tun:
 # DNS 配置
 dns:
   enable: true
-  reject-private: true   # 自动丢弃解析到私有 IP / 保留地址的结果
-  cache-algorithm: arc
-  prefer-h3: false
   listen: 0.0.0.0:1053
   ipv6: false
+  cache-algorithm: arc
+  reject-private: true
+  prefer-h3: false
   use-hosts: true
-  respect-rules: true    # dns 连接遵守路由规则，需配置 proxy-server-nameserver，强烈不建议和 prefer-h3 一起使用
+  respect-rules: false
   enhanced-mode: fake-ip
   fake-ip-range: 198.18.0.1/16
   # fake-ip-range6: fdfe:dcba:9876::1/64
@@ -84,36 +84,24 @@ dns:
     - RULE-SET:private_domain
     - RULE-SET:fakeip_filter_domain
 
-
-  # ⚠️ default & proxy-server 配置请勿随意改为 DoH/DoQ
-  # ⚠️ 它们必须使用 UDP DNS（如 223.5.5.5）：
-  # ⚠️ 因为启动时代理未就绪，DoH/DoQ 可能无法连接，导致代理无法启动。
-
-  # 解析「DNS 服务器自身域名」（如 fallback/filter 中的域名），以及 Mihomo 启动初期的基础解析。
+  # 启动阶段与基础解析，仅允许使用直连 UDP DNS
   default-nameserver:
-    - 223.5.5.5                         # 阿里（UDP）
-    - 119.29.29.29                      # 腾讯Pod 备用
+    - 223.5.5.5
+    - 119.29.29.29
 
-  # 解析「代理服务器域名」，防止 nameserver 无法访问导致连不上代理
+  # 解析代理服务器自身域名，避免代理未就绪导致死锁
   proxy-server-nameserver:
-    - 223.5.5.5                         # 阿里（UDP）
-    - 119.29.29.29                      # 腾讯Pod 备用
-  
-  # 「直连」域名的解析
-  direct-nameserver:
-    - quic://dns.alidns.com:853        # 阿里 DoQ
-    - https://doh.pub/dns-query        # 腾讯 DNSPod DoH
-    - https://dns.alidns.com/dns-query # 阿里 DoH
-  
-  # 解析没有匹配到任何「域名规则」的域名，通常是国外域名，建议使用国外 DoH 防止污染。
-  # 但这个解析结果并不会用来发起连接，所以为了追求速度不使用 DoH 或直接使用国内 DNS 也行。
-  # 虽然大多数人可以直连境外 DNS 的 UDP(53)（8.8.8.8 / 1.1.1.1）
-  # 但境外 DoH/DoT/DoQ 通常仍不可直连，因此不适合作为主要 nameserver
-  # 保持国内 DoQ/DoH 作为主解析最可靠
+    - 223.5.5.5
+    - 119.29.29.29
+
+  # 主解析池：为 fake-ip 提供候选 IP 集合
   nameserver:
-    - quic://dns.alidns.com:853        # 阿里 DoQ
-    - https://doh.pub/dns-query        # 腾讯 DNSPod DoH
-    - https://dns.alidns.com/dns-query # 阿里 DoH
+    - quic://dns.alidns.com:853
+    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query
+    - 223.6.6.6
+    - tls://223.5.5.5:853
+
   
 # ⚠️ fallback
 # 作用：当 nameserver 返回的 IP 被判定为“污染”或“非目标地区”时，
@@ -245,15 +233,16 @@ proxy-groups:
               🇬🇧 英国 自动选择, 🇺🇸 美国 自动选择]
 
   # 第一层：Telegram
-  - name: TELEGRAM
+  - name: Telegram
     type: select
     icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(11)_256.png"
-    proxies: [自动, 手动, DOWNLOAD]
+    proxies: [自动, 手动, Download]
 
   # 第一层：下载专用
-  - name: DOWNLOAD
-    filter: *FilterMultiplier
-    <<: *UrlTest
+  - name: Download
+    type: select
+    icon: 
+    proxies: [DLUrlTest, DLFallBack, DLLoadBalance]
 
   # 第一层：流媒体专用
   - name: STREAM
@@ -298,6 +287,21 @@ proxy-groups:
     type: select
     proxies: [自动选择, 自动回退, 负载均衡]
     icon: "https://raw.githubusercontent.com/ReRokutosei/MihomoCoreConfigExample/main/config/ui/icons/March7th(3)_256.png"
+
+  # 第二层：下载子组
+  - name: DLUrlTest
+    filter: *FilterMultiplier
+    <<: *UrlTest
+
+  # 第二层：下载子组
+  - name: DLFallBack
+    filter: *FilterMultiplier
+    <<: *FallBack
+
+  # 第二层：下载子组
+  - name: DLLoadBalance
+    filter: *FilterMultiplier
+    <<: *LoadBalance
 
 
   # 第三层: 引用基础组资源
@@ -578,11 +582,11 @@ rules:
   # 子规则调用
   ###############################################################
 
-  - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),DIRECT-RULES
-  - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),PROXY-RULES
   - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),ADBLOCK-RULES
   - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),HTTPDNS-RULES
   - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),LEAK-RULES
+  - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),DIRECT-RULES
+  - SUB-RULE,(OR,((NETWORK,TCP),(NETWORK,UDP))),PROXY-RULES
 
 
   ###############################################################
@@ -604,17 +608,9 @@ sub-rules:
   ###############################################################
   DIRECT-RULES:
 
-    # 软件源直连
+    # 国内域名直连
     - OR,(
-        (DOMAIN-SUFFIX,ubuntu.com),
-        (DOMAIN-SUFFIX,archive.ubuntu.com),
-        (DOMAIN-SUFFIX,security.ubuntu.com),
-        (DOMAIN-SUFFIX,launchpad.net),
-        (DOMAIN-SUFFIX,tsinghua.edu.cn)
-      ),DIRECT
-
-    # 常用/国内域名直连
-    - OR,(
+        (DOMAIN,cloudflare.com),
         (DOMAIN,hkrpg-log-upload.mihoyo.com),
         (DOMAIN,log-upload.mihoyo.com),
         (DOMAIN,log-upload-v6.mihoyo.com),
@@ -657,6 +653,7 @@ sub-rules:
 
     # 校园网 / 本地 IP 直连
     - OR,(
+        (IP-CIDR,10.0.1.5/32,no-resolve),
         (IP-CIDR,10.60.0.0/16,no-resolve),
         (IP-CIDR,10.70.0.0/16,no-resolve),
         (IP-CIDR,10.0.0.0/8,no-resolve),
@@ -664,14 +661,13 @@ sub-rules:
         (IP-CIDR,192.168.0.0/16,no-resolve),
         (IP-CIDR,127.0.0.0/8,no-resolve),
         (DOMAIN,localhost),
-        (DOMAIN-KEYWORD,127.0.0.1)
       ),DIRECT
 
     # 直连规则集
     - OR,(
         (RULE-SET,direct_domain),
         (RULE-SET,direct_non_ip),
-        (RULE-SET,domestic_ip,no-resolve),
+        (RULE-SET,domestic_ip),
         (RULE-SET,domestic_non_ip),
         (RULE-SET,cn_icp)
       ),DIRECT
@@ -701,6 +697,15 @@ sub-rules:
         (DOMAIN-SUFFIX,dict.eudic.net)
       ),PROXY
 
+    # 软件源
+    - OR,(
+        (DOMAIN-SUFFIX,ubuntu.com),
+        (DOMAIN-SUFFIX,archive.ubuntu.com),
+        (DOMAIN-SUFFIX,security.ubuntu.com),
+        (DOMAIN-SUFFIX,launchpad.net),
+        (DOMAIN-SUFFIX,tsinghua.edu.cn)
+      ),Download
+
     # 代理规则集
     - RULE-SET,ai_non_ip,AIGC
 
@@ -709,15 +714,15 @@ sub-rules:
         (RULE-SET,download_non_ip),
         (RULE-SET,cdn_non_ip),
         (RULE-SET,cdn_domainset)
-      ),DOWNLOAD
+      ),Download
 
     - OR,(
-      (RULE-SET,telegram_ip,no-resolve),
+      (RULE-SET,telegram_ip),
       (RULE-SET,telegram_non_ip)
-      ),TELEGRAM
+      ),Telegram
 
     - OR,(
-        (RULE-SET,stream_ip,no-resolve),
+        (RULE-SET,stream_ip),
         (RULE-SET,stream_non_ip)
       ),STREAM
 
@@ -735,7 +740,6 @@ sub-rules:
   ###############################################################
   HTTPDNS-RULES:
     - OR,(
-        
         (RULE-SET,blockhttpdns_ip,no-resolve),
         (RULE-SET,blockhttpdns_domain)
       ),HttpDNSBlock
